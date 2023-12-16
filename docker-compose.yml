@@ -1,0 +1,63 @@
+# # docker-compose.yml
+version: '3.9'
+services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - graphql-express
+
+  motive:
+    build:
+      context: .
+    environment:
+      DB_SCHEMA: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+    depends_on:
+      - postgres
+    ports:
+      - '3000:3000'
+volumes:
+  postgres:
+    name: graphql-express-docker-db
+
+networks:
+  graphql-express:
+
+
+# version: "3.9"
+# services:
+#   postgres:
+#     image: postgres:latest
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports: 
+#       - '5432:5432'
+#     volumes:
+#       - motive-db:/var/lib/postgresql/data
+
+#   motive:
+#     build:
+#       context: .
+#     environment:
+#       DB_SCHEMA: postgres
+#       DB_USER: postgres
+#       DB_PASSWORD: postgres
+#       DB_HOST: postgres
+#     depends_on:
+#       - postgres
+#     ports:
+#       - '3000:3000'
+        
+# volumes:
+#   motive-db:
+  
