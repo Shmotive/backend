@@ -2,16 +2,22 @@
 version: '3.9'
 services:
   postgres:
-    image: postgres:13-alpine
+    container_name: "motive-postgres"
+    image: postgres:latest
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - motive-db:/var/lib/postgresql/data
     networks:
-      - graphql-express
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   motive:
     build:
@@ -20,17 +26,19 @@ services:
       DB_SCHEMA: postgres
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_HOST: postgres
+      DB_HOST: host.docker.internal
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - '3000:3000'
+    networks:
+      - backend
 volumes:
-  postgres:
-    name: graphql-express-docker-db
+  motive-db:
 
 networks:
-  graphql-express:
+  backend:
 
 
 # version: "3.9"

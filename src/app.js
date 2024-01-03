@@ -8,9 +8,6 @@ const { User, sequelize } = require('./models');
 
 
 
-var indexRouter = require('./routes/index');
-var errorHandler = require('errorhandler')
-
 // https://semaphoreci.com/community/tutorials/dockerizing-a-node-js-web-application
 
 
@@ -56,16 +53,8 @@ var app = express();
 // app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-
-app.use(errorHandler({ dumpExceptions: true, showStack: true })); 
-process.on('uncaughtException', function (exception) {
-  console.log(exception); // to see your exception details in the console
-  // if you are on production, maybe you can send the exception details to your
-  // email as well ?
-});
 app.use(
-  "/graphql",
+  "/",
   graphqlHTTP({
     schema: schema,
     graphiql: true,
