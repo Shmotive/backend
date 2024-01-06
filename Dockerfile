@@ -7,5 +7,5 @@ COPY src/package.json src/package-lock.json .
 RUN npm install
 COPY src/ .
 EXPOSE 3000
-
+# CMD ["npm", "run", "start"]
 CMD ["/bin/sh", "./init_db.sh"]
