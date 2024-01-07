@@ -1,6 +1,5 @@
 #!/bin/bash
 
 # npm run migrate-db
-npx sequelize db:create
-npx sequelize db:migrate
+npx prisma db push
 npm run start

@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  uuid       String   @id
+  username   String
+  lobby      Lobby?
+  votes      Vote[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Lobby {
+  id         String     @id
+  lobby_code String
+  state      LobbyState @default(CREATING_LOBBY)
+  owner      User       @relation(fields: [owner_uuid], references: [uuid])
+  owner_uuid String     @unique
+  votes      Vote[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Recommendation {
+  id   String @id
+  name String
+  category RecommendationCategory
+  price_range_low Float
+  price_range_high Float
+}
+
+model Vote {
+  id  String @id
+  user User @relation(fields: [user_uuid], references: [uuid])
+  user_uuid String     @unique
+  lobby Lobby @relation(fields: [lobby_id], references: [id])
+  lobby_id  String
+}
+
+
+// ENUMS
+enum LobbyState {
+  CREATING_LOBBY
+  WAITING_FOR_PLAYERS
+  VOTING
+  RESULTS
+  DONE
+}
+
+enum RecommendationCategory {
+  DINING
+  ACTIVITY
+  EVENT
+  CUSTOM
+}

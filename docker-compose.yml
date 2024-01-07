@@ -31,7 +31,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - '3000:3000'
+      - '4000:4000'
     networks:
       - backend
 volumes:
@@ -39,33 +39,3 @@ volumes:
 
 networks:
   backend:
-
-
-# version: "3.9"
-# services:
-#   postgres:
-#     image: postgres:latest
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#     ports: 
-#       - '5432:5432'
-#     volumes:
-#       - motive-db:/var/lib/postgresql/data
-
-#   motive:
-#     build:
-#       context: .
-#     environment:
-#       DB_SCHEMA: postgres
-#       DB_USER: postgres
-#       DB_PASSWORD: postgres
-#       DB_HOST: postgres
-#     depends_on:
-#       - postgres
-#     ports:
-#       - '3000:3000'
-        
-# volumes:
-#   motive-db:
-  
