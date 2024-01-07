@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator typedefs {
+  provider = "prisma-generator-graphql-typedef"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -20,7 +24,7 @@ model User {
 }
 
 model Lobby {
-  id         String     @id
+  id         Int     @id @default(autoincrement())
   lobby_code String
   state      LobbyState @default(CREATING_LOBBY)
   owner      User       @relation(fields: [owner_uuid], references: [uuid])
@@ -43,7 +47,7 @@ model Vote {
   user User @relation(fields: [user_uuid], references: [uuid])
   user_uuid String     @unique
   lobby Lobby @relation(fields: [lobby_id], references: [id])
-  lobby_id  String
+  lobby_id  Int
 }
 
 

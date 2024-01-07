@@ -11,6 +11,11 @@
       "resolveJsonModule": true,
       "types": ["node"],
       "moduleResolution": "node",
-    }
+    },
+
+    "exclude": [
+      "./generated",
+      "./dist"
+    ]
   }
   
