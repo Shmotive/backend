@@ -15,41 +15,42 @@ datasource db {
 }
 
 model User {
-  uuid       String   @id
-  username   String
-  lobby      Lobby?
-  votes      Vote[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  uuid           String   @id
+  username       String
+  owned_lobbies  Lobby[]  @relation("lobby_owner")
+  joined_lobbies Lobby[]  @relation("lobby_participant")
+  votes          Vote[]
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 }
 
 model Lobby {
-  id         Int     @id @default(autoincrement())
-  lobby_code String
-  state      LobbyState @default(CREATING_LOBBY)
-  owner      User       @relation(fields: [owner_uuid], references: [uuid])
-  owner_uuid String     @unique
-  votes      Vote[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id           Int        @id @default(autoincrement())
+  lobby_code   String
+  state        LobbyState @default(CREATING_LOBBY)
+  owner        User       @relation("lobby_owner", fields: [owner_uuid], references: [uuid])
+  owner_uuid     String
+  participants User[]     @relation("lobby_participant")
+  votes        Vote[]
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
 }
 
 model Recommendation {
-  id   String @id
-  name String
-  category RecommendationCategory
-  price_range_low Float
+  id               String                 @id
+  name             String
+  category         RecommendationCategory
+  price_range_low  Float
   price_range_high Float
 }
 
 model Vote {
-  id  String @id
-  user User @relation(fields: [user_uuid], references: [uuid])
-  user_uuid String     @unique
-  lobby Lobby @relation(fields: [lobby_id], references: [id])
+  id        String @id
+  user      User   @relation(fields: [user_uuid], references: [uuid])
+  user_uuid String @unique
+  lobby     Lobby  @relation(fields: [lobby_id], references: [id])
   lobby_id  Int
 }
-
 
 // ENUMS
 enum LobbyState {

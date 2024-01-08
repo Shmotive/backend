@@ -2,7 +2,7 @@ import { GraphQLScalarType, Kind } from 'graphql';
 
 export default new GraphQLScalarType({
     name: 'DateTime',
-    description: 'Date custom scalar type',
+    description: 'DateTime custom scalar type',
     serialize(value) {
       if (value instanceof Date) {
         return value.getTime(); // Convert outgoing Date to integer for JSON

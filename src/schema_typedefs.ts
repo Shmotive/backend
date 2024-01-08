@@ -1,7 +1,8 @@
 export const generatedTypes = `type User {
   uuid: String
   username: String
-  lobby: Lobby
+  owned_lobbies: [Lobby]
+  joined_lobbies: [Lobby]
   votes: [Vote]
   created_at: DateTime
   updated_at: DateTime
@@ -13,6 +14,7 @@ type Lobby {
   state: LobbyState
   owner: User
   owner_uuid: String
+  participants: [User]
   votes: [Vote]
   created_at: DateTime
   updated_at: DateTime
