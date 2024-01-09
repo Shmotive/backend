@@ -1,14 +1,15 @@
 import { LobbyState } from "@prisma/client";
 import dateScalar from './customScalars.js'
+import { withFilter } from "graphql-subscriptions";
+import { PubSub } from 'graphql-subscriptions';
+
+const pubsub = new PubSub();
 
 const resolvers = {
     DateTime: dateScalar,
 
     Query: {
         async DEBUG_users(_parent: any, _args: {}, context: any, _info: any) {
-            context.pubsub.publish('TEST', {
-                data: 123
-            })
             return await context.prisma.User.findMany({
                 include: {
                     owned_lobbies: true,
@@ -22,6 +23,13 @@ const resolvers = {
                     uuid: args.uuid
                 }
             })
+        },
+
+        async DEBUG_triggerSubscription() {
+            pubsub.publish('TEST', {
+                data: 123
+            })
+            return true;
         }
 
     },
@@ -115,8 +123,14 @@ const resolvers = {
     },
 
     Subscription: {
-        DEBUG_subscription_test(_parent: any, _args: {}, context: any, _info: any) {
-            subscribe: () => context.pubsub.asyncIterator(['TEST'])
+        DEBUG_subscription_test: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(['TEST']),
+                (payload: any, variables: any) => {
+                    return true;
+                }
+            ),
+            resolve: (payload: any) => payload.data
         }
     }
 };

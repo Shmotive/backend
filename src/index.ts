@@ -10,25 +10,28 @@ import { PrismaClient } from "@prisma/client"
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { PubSub } from 'graphql-subscriptions';
 
 interface ServerContext {
     token?: string;
     prisma: PrismaClient
-    pubsub: PubSub
 }
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const prisma = new PrismaClient();
-const pubsub = new PubSub();
 const app = express();
 const httpServer = http.createServer(app);
 
 const wsServer = new WebSocketServer({
     server: httpServer,
-    path: '/subscriptions',
+    path: '/graphql',
 });
 
-const wsServerCleanup = useServer({ schema }, wsServer);
+const wsServerCleanup = useServer({
+    schema,
+    context: async (ctx, msg, args) => {
+        // TODO do some auth here
+        // https://www.apollographql.com/docs/apollo-server/data/subscriptions#operation-context
+    },
+}, wsServer);
 
 const server = new ApolloServer<ServerContext>({
     typeDefs,
@@ -57,7 +60,6 @@ app.use(
         context: async ({ req }) => ({
             token: 'placeholder',
             prisma,
-            pubsub
         }),
     }),
 );

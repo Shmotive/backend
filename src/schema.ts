@@ -6,6 +6,7 @@ const resolverString = `
   type Query {
     DEBUG_users: [User]
     DEBUG_getUser(uuid: String!): User!
+    DEBUG_triggerSubscription: Boolean
   }
 
   type Mutation {
