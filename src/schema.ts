@@ -5,6 +5,7 @@ const resolverString = `
 
   type Query {
     DEBUG_users: [User]
+    DEBUG_getUser(uuid: String!): User!
   }
 
   type Mutation {
@@ -13,6 +14,10 @@ const resolverString = `
     createLobby(uuid: String!): Lobby!
     joinLobby(uuid: String!, lobby_code: String!): Lobby!
     DEBUG_resetLobbies: Int
+  }
+
+  type Subscription {
+    DEBUG_subscription_test: Int
   }
 `;
 

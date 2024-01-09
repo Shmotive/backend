@@ -29,7 +29,7 @@ model Lobby {
   lobby_code   String
   state        LobbyState @default(CREATING_LOBBY)
   owner        User       @relation("lobby_owner", fields: [owner_uuid], references: [uuid])
-  owner_uuid     String
+  owner_uuid   String
   participants User[]     @relation("lobby_participant")
   votes        Vote[]
   created_at   DateTime   @default(now())

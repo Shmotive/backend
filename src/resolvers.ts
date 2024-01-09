@@ -6,6 +6,9 @@ const resolvers = {
 
     Query: {
         async DEBUG_users(_parent: any, _args: {}, context: any, _info: any) {
+            context.pubsub.publish('TEST', {
+                data: 123
+            })
             return await context.prisma.User.findMany({
                 include: {
                     owned_lobbies: true,
@@ -13,6 +16,14 @@ const resolvers = {
                 }
             });
         },
+        async DEBUG_getUser(_parent: any, args: {uuid: String}, context: any, _info: any) {
+            return await context.prisma.User.findUnique({
+                where: {
+                    uuid: args.uuid
+                }
+            })
+        }
+
     },
 
     Mutation: {
@@ -59,8 +70,6 @@ const resolvers = {
                 }
             });
 
-            console.log(lobby)
-
             let updateUser = await context.prisma.User.update({
                 where: { uuid: args.uuid },
                 data: {
@@ -104,6 +113,12 @@ const resolvers = {
             return (await context.prisma.lobby.deleteMany({}))?.count;
         }
     },
+
+    Subscription: {
+        DEBUG_subscription_test(_parent: any, _args: {}, context: any, _info: any) {
+            subscribe: () => context.pubsub.asyncIterator(['TEST'])
+        }
+    }
 };
 
 
