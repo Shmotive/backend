@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,47 +12,70 @@ datasource db {
 }
 
 model User {
-  uuid           String   @id
-  username       String
-  owned_lobbies  Lobby[]  @relation("lobby_owner")
-  joined_lobbies Lobby[]  @relation("lobby_participant")
-  votes          Vote[]
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  uuid                    String               @id
+  username                String
+  owned_lobbies           Lobby[]              @relation("lobby_owner")
+  joined_lobbies          Lobby[]              @relation("lobby_participant")
+  lobby_recommendations   Recommendation[]     @relation("recommendation_author")
+  skipped_recommendations SkipRecommendation[] @relation("lobby_skip_user")
+  votes                   Vote[]
+  created_at              DateTime             @default(now())
+  updated_at              DateTime             @updatedAt
 }
 
 model Lobby {
-  id           Int        @id @default(autoincrement())
-  lobby_code   String
-  state        LobbyState @default(CREATING_LOBBY)
-  owner        User       @relation("lobby_owner", fields: [owner_uuid], references: [uuid])
-  owner_uuid   String
-  participants User[]     @relation("lobby_participant")
-  votes        Vote[]
-  created_at   DateTime   @default(now())
-  updated_at   DateTime   @updatedAt
+  id              Int                  @id @default(autoincrement())
+  lobby_code      String
+  state           LobbyState           @default(WAITING_FOR_PLAYERS)
+  owner           User                 @relation("lobby_owner", fields: [owner_uuid], references: [uuid])
+  owner_uuid      String
+  participants    User[]               @relation("lobby_participant")
+  votes           Vote[]
+  recommendations Recommendation[]     @relation("lobby_recommendations")
+  skips           SkipRecommendation[] @relation("lobby_skip")
+  created_at      DateTime             @default(now())
+  updated_at      DateTime             @updatedAt
 }
 
 model Recommendation {
-  id               String                 @id
-  name             String
-  category         RecommendationCategory
-  price_range_low  Float
-  price_range_high Float
+  id                String                 @id @default(uuid())
+  name              String
+  category          RecommendationCategory
+  price_range_low   Float?
+  price_range_high  Float?
+  suggested_by      User                   @relation("recommendation_author", fields: [suggested_by_uuid], references: [uuid])
+  suggested_by_uuid String
+  lobby             Lobby                  @relation("lobby_recommendations", fields: [lobby_id], references: [id])
+  lobby_id          Int
+  votes             Vote[]                 @relation("votes")
+}
+
+// When a user joins a lobby, they can choose to either propose a custom recommendation, or skip.
+// This table will track when a user chooses to skip
+model SkipRecommendation {
+  lobby    Lobby  @relation("lobby_skip", fields: [lobby_id], references: [id])
+  lobby_id Int
+  user     User   @relation("lobby_skip_user", fields: [uuid], references: [uuid])
+  uuid     String
+  @@id(name: "id", [lobby_id, uuid])
 }
 
 model Vote {
-  id        String @id
-  user      User   @relation(fields: [user_uuid], references: [uuid])
-  user_uuid String @unique
-  lobby     Lobby  @relation(fields: [lobby_id], references: [id])
-  lobby_id  Int
+  user              User           @relation(fields: [user_uuid], references: [uuid])
+  user_uuid         String         @unique
+  lobby             Lobby          @relation(fields: [lobby_id], references: [id])
+  lobby_id          Int
+  yes_vote          Boolean        @default(true)
+  recommendation    Recommendation @relation("votes", fields: [recommendation_id], references: [id])
+  recommendation_id String
+  @@id(name: "id", [user_uuid, lobby_id, recommendation_id])
+
 }
 
 // ENUMS
 enum LobbyState {
-  CREATING_LOBBY
   WAITING_FOR_PLAYERS
+  READY_TO_START
   VOTING
   RESULTS
   DONE

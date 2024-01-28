@@ -27,9 +27,10 @@ const wsServer = new WebSocketServer({
 
 const wsServerCleanup = useServer({
     schema,
-    context: async (ctx, msg, args) => {
+    context: async (ctx: any, msg, args) => {
         // TODO do some auth here
         // https://www.apollographql.com/docs/apollo-server/data/subscriptions#operation-context
+        return {ctx, prisma, msg, args}
     },
 }, wsServer);
 
