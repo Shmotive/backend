@@ -245,7 +245,7 @@ const resolvers = {
                 }
             })
 
-            var updateLobby = await context.prisma.lobby.updateMany({
+            var updateLobby = await context.prisma.lobby.update({
                 where: { id: lobby.id },
                 data: { state: LobbyState.VOTING }
             })
