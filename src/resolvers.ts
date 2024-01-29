@@ -18,6 +18,7 @@ const resolvers = {
                 }
             });
         },
+
         async DEBUG_getUser(_parent: any, args: { uuid: String }, context: any, _info: any) {
             return await context.prisma.User.findUnique({
                 where: {
@@ -35,8 +36,22 @@ const resolvers = {
                 data: 123
             })
             return true;
-        }
+        },
 
+        async getLiveLobby(_parent: any, args: { lobby_code: String }, context: any, _info: any) {
+            return await context.prisma.lobby.findFirst({
+                where: {
+                    lobby_code: args.lobby_code,
+                    NOT: { state: LobbyState.DONE }
+                },
+                include: {
+                    participants: true,
+                    votes: true,
+                    recommendations: true,
+                    skips: true
+                }
+            })
+        }
     },
 
     Mutation: {
@@ -51,9 +66,7 @@ const resolvers = {
 
         async deleteUser(_parent: any, args: { uuid: String }, context: any) {
             return await context.prisma.User.delete({
-                where: {
-                    uuid: args.uuid
-                }
+                where: { uuid: args.uuid }
             });
         },
 
@@ -65,10 +78,7 @@ const resolvers = {
                 let lobby = await context.prisma.Lobby.findMany({
                     where: {
                         lobby_code: code + '',
-                        NOT: {
-                            state: LobbyState.DONE
-                        }
-
+                        NOT: { state: LobbyState.DONE }
                     }
                 })
                 unique = lobby.length == 0
@@ -103,15 +113,13 @@ const resolvers = {
             })
 
             let updateUser = await context.prisma.user.update({
-                where: {
-                    uuid: args.uuid
-                },
+                where: { uuid: args.uuid },
                 data: {
-                    joined_lobbies: {
-                        connect: { id: lobby.id }
-                    }
+                    joined_lobbies: { connect: { id: lobby.id } }
                 }
             })
+
+            pubsub.publish(`${args.lobby_code}`, {})
 
             return lobby;
         },

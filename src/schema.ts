@@ -7,6 +7,7 @@ const resolverString = `
     DEBUG_users: [User]
     DEBUG_getUser(uuid: String!): User!
     DEBUG_triggerSubscription: Boolean
+    getLiveLobby(lobby_code: String!): Lobby!
   }
 
   type Mutation {
