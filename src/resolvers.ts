@@ -258,7 +258,7 @@ const resolvers = {
             var lobby = await context.prisma.lobby.findFirstOrThrow({
                 where: {
                     lobby_code: args.lobby_code,
-                    state: LobbyState.WAITING_FOR_PLAYERS
+                    state: LobbyState.VOTING
                 }
             })
 
