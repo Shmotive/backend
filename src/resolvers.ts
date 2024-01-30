@@ -273,6 +273,9 @@ const resolvers = {
                         lobby: { connect: { id: lobby.id } },
                         recommendation: { connect: { id: args.recommendation_id } },
                         yes_vote: args.vote
+                    },
+                    include: {
+                        recommendation: true
                     }
                 })
 
