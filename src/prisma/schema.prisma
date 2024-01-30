@@ -62,7 +62,7 @@ model SkipRecommendation {
 
 model Vote {
   user              User           @relation(fields: [user_uuid], references: [uuid])
-  user_uuid         String         @unique
+  user_uuid         String
   lobby             Lobby          @relation(fields: [lobby_id], references: [id])
   lobby_id          Int
   yes_vote          Boolean        @default(true)
