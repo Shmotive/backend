@@ -45,6 +45,7 @@ const resolvers = {
                     NOT: { state: LobbyState.DONE }
                 },
                 include: {
+                    owner: true,
                     participants: true,
                     votes: true,
                     recommendations: true,
