@@ -130,9 +130,9 @@ const resolvers = {
                     })
                 }
 
-                pubsub.publish(`${args.lobby_code}`, {})
                 return lobby
             })
+            pubsub.publish(`${args.lobby_code}`, {})
 
             return tx_result;
         },
@@ -177,9 +177,9 @@ const resolvers = {
                         data: { state: LobbyState.READY_TO_START }
                     })
                 }
-                pubsub.publish(`${args.lobby_code}`, {})
                 return skip;
             })
+            pubsub.publish(`${args.lobby_code}`, {})
 
             return tx_result;
         },
@@ -243,9 +243,9 @@ const resolvers = {
                         data: { state: LobbyState.READY_TO_START }
                     })
                 }
-                pubsub.publish(`${args.lobby_code}`, {})
                 return suggestion;
             })
+            pubsub.publish(`${args.lobby_code}`, {})
 
             return tx_result;
         },
@@ -300,9 +300,9 @@ const resolvers = {
                         data: { state: LobbyState.RESULTS }
                     })
                 }
-                pubsub.publish(`${args.lobby_code}`, {})
                 return upsertVote
             })
+            pubsub.publish(`${args.lobby_code}`, {})
             return tx_result
         }
     },
@@ -333,7 +333,8 @@ const resolvers = {
                         participants: true,
                         votes: true,
                         recommendations: true,
-                        skips: true
+                        skips: true,
+                        picks: true
                     }
                 })
             }
