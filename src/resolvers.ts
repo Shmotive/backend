@@ -106,23 +106,35 @@ const resolvers = {
         },
 
         async joinLobby(_parent: any, args: { uuid: String, lobby_code: String }, context: any) {
-            var lobby = await context.prisma.lobby.findFirstOrThrow({
-                where: {
-                    lobby_code: args.lobby_code,
-                    state: LobbyState.WAITING_FOR_PLAYERS
+            var tx_result = await context.prisma.$transaction(async (tx: any) => {
+                var lobby = await tx.lobby.findFirstOrThrow({
+                    where: {
+                        lobby_code: args.lobby_code,
+                        state: { in: [LobbyState.WAITING_FOR_PLAYERS, LobbyState.READY_TO_START] }
+                    }
+                })
+
+                let updateUser = await tx.user.update({
+                    where: { uuid: args.uuid },
+                    data: {
+                        joined_lobbies: { connect: { id: lobby.id } }
+                    }
+                })
+
+                if (lobby.state == LobbyState.READY_TO_START) {
+                    lobby = tx.lobby.update({
+                        where: { id: lobby.id},
+                        data: {
+                            state: LobbyState.WAITING_FOR_PLAYERS
+                        }
+                    })
                 }
+
+                pubsub.publish(`${args.lobby_code}`, {})
+                return lobby
             })
 
-            let updateUser = await context.prisma.user.update({
-                where: { uuid: args.uuid },
-                data: {
-                    joined_lobbies: { connect: { id: lobby.id } }
-                }
-            })
-
-            pubsub.publish(`${args.lobby_code}`, {})
-
-            return lobby;
+            return tx_result;
         },
 
         async DEBUG_resetLobbies(_parent: any, args: {}, context: any) {
