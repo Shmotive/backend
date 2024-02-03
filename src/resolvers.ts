@@ -329,6 +329,7 @@ const resolvers = {
                         lobby_code: args.lobby_code,
                     },
                     include: {
+                        owner: true,
                         participants: true,
                         votes: true,
                         recommendations: true,
