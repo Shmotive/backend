@@ -3,6 +3,8 @@ import dateScalar from './customScalars.js'
 import LobbyHelper from './resolvers/lobby_helpers.js'
 import { withFilter } from "graphql-subscriptions";
 import { PubSub } from 'graphql-subscriptions';
+import lobby_helpers from "./resolvers/lobby_helpers.js";
+import { connect } from "http2";
 
 const pubsub = new PubSub();
 
@@ -48,7 +50,8 @@ const resolvers = {
                     owner: true,
                     participants: true,
                     votes: true,
-                    recommendations: true,
+                    custom_recommendations: true,
+                    generated_recommendations: true,
                     skips: true
                 }
             })
@@ -123,7 +126,7 @@ const resolvers = {
 
                 if (lobby.state == LobbyState.READY_TO_START) {
                     lobby = tx.lobby.update({
-                        where: { id: lobby.id},
+                        where: { id: lobby.id },
                         data: {
                             state: LobbyState.WAITING_FOR_PLAYERS
                         }
@@ -204,7 +207,7 @@ const resolvers = {
                     where: {
                         name: args.name,
                         category: RecommendationCategory.CUSTOM,
-                        lobby_id: lobby.id
+                        custom_lobby_id: lobby.id
                     }
                 })
                 // If so, submit as a SkipRecommendation. Otherwise, create the suggestion.
@@ -225,7 +228,7 @@ const resolvers = {
                             name: args.name,
                             category: RecommendationCategory.CUSTOM,
                             suggested_by: { connect: { uuid: args.uuid } },
-                            lobby: { connect: { id: lobby.id } }
+                            custom_lobby_relation: { connect: { id: lobby.id } }
                         }
                     })
                 }
@@ -258,9 +261,16 @@ const resolvers = {
                 }
             })
 
+            var lobbyRecommendations = await lobby_helpers.generateRecommendations(context.prisma, lobby.id)
+
             var updateLobby = await context.prisma.lobby.update({
                 where: { id: lobby.id },
-                data: { state: LobbyState.VOTING }
+                data: {
+                    state: LobbyState.VOTING,
+                    generated_recommendations: {
+                        connect: lobbyRecommendations
+                    }
+                }
             })
             pubsub.publish(`${args.lobby_code}`, {})
 
@@ -295,10 +305,14 @@ const resolvers = {
                 var votingComplete = await LobbyHelper.allUsersDoneVoting(tx, lobby.id)
                 if (votingComplete) {
                     console.log(`Lobby ${args.lobby_code}: has completed voting`)
-                    tx.lobby.update({
-                        where: { lobby_id: lobby.id },
-                        data: { state: LobbyState.RESULTS }
+
+                    var picks = await lobby_helpers.calculateLobbyPicks(tx, lobby.id)
+                    console.log(picks);
+                    await tx.lobby.update({
+                        where: { id: lobby.id },
+                        data: { state: LobbyState.RESULTS, picks: { connect: picks } } // todo add picks
                     })
+
                 }
                 return upsertVote
             })
@@ -331,8 +345,13 @@ const resolvers = {
                     include: {
                         owner: true,
                         participants: true,
-                        votes: true,
-                        recommendations: true,
+                        votes: {
+                            include: {
+                                recommendation: true
+                            }
+                        },
+                        custom_recommendations: true,
+                        generated_recommendations: true,
                         skips: true,
                         picks: true
                     }

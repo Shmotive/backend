@@ -18,8 +18,10 @@ type Lobby {
   owner_uuid: String
   participants: [User]
   votes: [Vote]
-  recommendations: [Recommendation]
+  generated_recommendations: [Recommendation]
+  custom_recommendations: [Recommendation]
   skips: [SkipRecommendation]
+  picks: [Recommendation]
   created_at: DateTime
   updated_at: DateTime
 }
@@ -32,9 +34,11 @@ type Recommendation {
   price_range_high: Float
   suggested_by: User
   suggested_by_uuid: String
-  lobby: Lobby
-  lobby_id: Int
+  custom_lobby_relation: Lobby
+  custom_lobby_id: Int
   votes: [Vote]
+  lobbys_won: [Lobby]
+  generated_lobby_relation: [Lobby]
 }
 
 type SkipRecommendation {
@@ -45,7 +49,6 @@ type SkipRecommendation {
 }
 
 type Vote {
-  id: String
   user: User
   user_uuid: String
   lobby: Lobby
