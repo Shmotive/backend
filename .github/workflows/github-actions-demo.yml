@@ -20,7 +20,7 @@ jobs:
       env:
         DATABASE_URL: "postgresql://postgres:postgres@motive-postgres:5432/database_test?schema=postgres"
       run: |
-        echo $DATABASE_URL > src/.env
+        echo DATABASE_URL=$DATABASE_URL > src/.env
         docker-compose down
         docker rmi $(docker images -a -q)
         printf "y\n" | docker system prune
