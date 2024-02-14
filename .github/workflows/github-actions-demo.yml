@@ -16,4 +16,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Start docker
-      run: sudo sh src/restart.sh
+      run: |
+      docker-compose down
+      docker rmi $(docker images -a -q)
+      printf "y\n" | docker system prune
+      docker-compose up
