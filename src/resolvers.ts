@@ -52,7 +52,8 @@ const resolvers = {
                     votes: true,
                     custom_recommendations: true,
                     generated_recommendations: true,
-                    skips: true
+                    skips: true,
+                    picks: true,
                 }
             })
         }
