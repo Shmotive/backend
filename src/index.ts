@@ -55,7 +55,9 @@ await server.start();
 
 app.use(
     '/graphql',
-    // cors(),
+    cors({
+        origin: "https://whatsthemotive.app"
+    }),
     express.json(),
     expressMiddleware(server, {
         context: async ({ req }) => ({
