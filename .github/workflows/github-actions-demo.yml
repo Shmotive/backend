@@ -19,6 +19,7 @@ jobs:
     - name: Start docker
       env:
         DATABASE_URL: "postgresql://postgres:postgres@motive-postgres:5432/database_test?schema=postgres"
+        ENV_TYPE: "prod"
       run: |
         echo DATABASE_URL=$DATABASE_URL > src/.env
         docker-compose down
