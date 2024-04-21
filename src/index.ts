@@ -53,10 +53,19 @@ const server = new ApolloServer<ServerContext>({
 
 await server.start();
 
+let origin;
+if (process.env.ENV_TYPE === "prod") {
+    origin = "https://whatsthemotive.app"
+} else if (process.env.ENV_TYPE === "dev") {
+    origin = "http://localhost:3000"
+} else {
+    throw new Error('WAHHH I CRASHED!!! ')
+}
+
 app.use(
     '/graphql',
     cors({
-        origin: "https://whatsthemotive.app"
+        origin
     }),
     express.json(),
     expressMiddleware(server, {
