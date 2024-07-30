@@ -37,6 +37,8 @@ model Lobby {
   picks                     Recommendation[]     @relation("lobby_picks")
   created_at                DateTime             @default(now())
   updated_at                DateTime             @updatedAt
+  latitude                  Float?
+  longitude                 Float?
 }
 
 model Recommendation {

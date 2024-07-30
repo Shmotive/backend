@@ -75,7 +75,7 @@ const resolvers = {
             });
         },
 
-        async createLobby(_parent: any, args: { uuid: String }, context: any) {
+        async createLobby(_parent: any, args: { uuid: String, latitude: Number, longitude: Number }, context: any) {
             let unique = false;
             let code;
             while (!unique) {
@@ -95,7 +95,9 @@ const resolvers = {
                     owned_lobbies: {
                         create: {
                             lobby_code: code + '',
-                            state: LobbyState.WAITING_FOR_PLAYERS
+                            state: LobbyState.WAITING_FOR_PLAYERS,
+                            latitude: args.latitude,
+                            longitude: args.longitude
                         }
                     }
                 }

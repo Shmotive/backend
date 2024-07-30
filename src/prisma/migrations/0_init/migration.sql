@@ -22,6 +22,8 @@ CREATE TABLE "Lobby" (
     "owner_uuid" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
 
     CONSTRAINT "Lobby_pkey" PRIMARY KEY ("id")
 );

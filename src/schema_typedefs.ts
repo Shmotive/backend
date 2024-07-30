@@ -24,6 +24,8 @@ type Lobby {
   picks: [Recommendation]
   created_at: DateTime
   updated_at: DateTime
+  latitude: Float
+  longitude: Float
 }
 
 type Recommendation {
