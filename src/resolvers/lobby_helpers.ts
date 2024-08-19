@@ -1,4 +1,6 @@
 import { PrismaClient, RecommendationCategory } from "@prisma/client";
+import createRecommendations from "../google/nearbySearch.js";
+import geolib from "geolib";
 
 export default {
     allUsersReady: async (prisma: PrismaClient, lobby_id: number, num_users: number) => {
@@ -33,15 +35,84 @@ export default {
         return numVotes >= (numParticipants + 1) * numRecs;
     },
 
-    generateRecommendations: async (prisma: PrismaClient, lobby_id: number) => {
-        return await prisma.recommendation.findMany({
+    generateRecommendations: async (prisma: PrismaClient, lobby_id: number, latitude: number, longitude: number, postal_code: string | null) => {
+        // trigger the process to make the nearbysearch requests to google, then create the recs
+        if (!postal_code) {
+            console.log(`null postal code:${postal_code}, creating recommendations...`)
+            try {
+                // Trigger the process to make the nearby search requests to Google, then create the recommendations
+                await createRecommendations(prisma, lobby_id, latitude, longitude);
+                console.log("Recommendations successfully generated");
+        
+                // Fetch and return the generated recommendations associated with the given lobby
+                const recommendations = await prisma.recommendation.findMany({
+                    where: {
+                        generated_lobby_relation: {
+                            some: { id: lobby_id }
+                        }
+                    },
+                    select: { id: true }
+                });
+        
+                return recommendations;
+        
+            } catch (err) {
+                console.error("Error creating recommendations:", err);
+                throw err;
+            }
+        }
+        console.log("Postal code exists. Filtering recommendations based on postal code and location radius.");
+    
+        const recommendationsWithMatchingPostalCode = await prisma.recommendation.findMany({
             where: {
-                NOT: { category: RecommendationCategory.CUSTOM }
+                postal_code: {
+                    startsWith: postal_code.substring(0, 3),
+                },
             },
-            select: { id: true }
-        })
+        });
 
-
+        const recommendationsWithinRadius = recommendationsWithMatchingPostalCode.filter(recommendation => {
+            return recommendation.latitude !== null && recommendation.longitude !== null && 
+                   geolib.isPointWithinRadius(
+                       {
+                           latitude: recommendation.latitude, 
+                           longitude: recommendation.longitude
+                       },
+                       {
+                           latitude: latitude, 
+                           longitude: longitude
+                       }, 
+                       1000
+                   );
+        });
+    
+        if (recommendationsWithinRadius.length >= 5) {
+            console.log("Found sufficient recommendations within radius. Using these recommendations.");
+            return recommendationsWithinRadius;
+        } else {
+            console.log("Not enough recommendations within radius. Generating new recommendations.");
+            try {
+                // Trigger the process to make the nearby search requests to Google, then create the recommendations
+                await createRecommendations(prisma, lobby_id, latitude, longitude);
+                console.log("Recommendations successfully generated");
+        
+                // Fetch and return the generated recommendations associated with the given lobby
+                const recommendations = await prisma.recommendation.findMany({
+                    where: {
+                        generated_lobby_relation: {
+                            some: { id: lobby_id }
+                        }
+                    },
+                    select: { id: true }
+                });
+        
+                return recommendations;
+        
+            } catch (err) {
+                console.error("Error creating recommendations:", err);
+                throw err;
+            }
+        }
     },
 
     calculateLobbyPicks: async (prisma: PrismaClient, lobby_id: number) => {

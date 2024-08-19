@@ -39,6 +39,7 @@ model Lobby {
   updated_at                DateTime             @updatedAt
   latitude                  Float?
   longitude                 Float?
+  postal_code               String?
 }
 
 model Recommendation {
@@ -54,6 +55,9 @@ model Recommendation {
   votes                    Vote[]                 @relation("votes")
   lobbys_won               Lobby[]                @relation("lobby_picks")
   generated_lobby_relation Lobby[]                @relation("generated_recommendations")
+  postal_code              String?
+  latitude                 Float?
+  longitude                Float?
 }
 
 // When a user joins a lobby, they can choose to either propose a custom recommendation, or skip.

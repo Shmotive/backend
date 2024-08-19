@@ -75,7 +75,7 @@ const resolvers = {
             });
         },
 
-        async createLobby(_parent: any, args: { uuid: String, latitude: Number, longitude: Number }, context: any) {
+        async createLobby(_parent: any, args: { uuid: String, latitude: Number, longitude: Number, postal_code: String | null }, context: any) {
             let unique = false;
             let code;
             while (!unique) {
@@ -97,7 +97,8 @@ const resolvers = {
                             lobby_code: code + '',
                             state: LobbyState.WAITING_FOR_PLAYERS,
                             latitude: args.latitude,
-                            longitude: args.longitude
+                            longitude: args.longitude,
+                            postal_code: args.postal_code
                         }
                     }
                 }
@@ -264,7 +265,7 @@ const resolvers = {
                 }
             })
 
-            var lobbyRecommendations = await lobby_helpers.generateRecommendations(context.prisma, lobby.id)
+            var lobbyRecommendations = await lobby_helpers.generateRecommendations(context.prisma, lobby.id, lobby.latitude, lobby.longitude, lobby.postal_code)
 
             var updateLobby = await context.prisma.lobby.update({
                 where: { id: lobby.id },

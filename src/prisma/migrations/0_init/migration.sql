@@ -24,6 +24,7 @@ CREATE TABLE "Lobby" (
     "updated_at" TIMESTAMP(3) NOT NULL,
     "latitude" DOUBLE PRECISION,
     "longitude" DOUBLE PRECISION,
+    "postal_code" TEXT NULL,
 
     CONSTRAINT "Lobby_pkey" PRIMARY KEY ("id")
 );
@@ -37,6 +38,9 @@ CREATE TABLE "Recommendation" (
     "price_range_high" DOUBLE PRECISION,
     "suggested_by_uuid" TEXT,
     "custom_lobby_id" INTEGER,
+    "postal_code" TEXT NULL,
+    "latitude" DOUBLE PRECISION NULL,
+    "longitude" DOUBLE PRECISION NULL,
 
     CONSTRAINT "Recommendation_pkey" PRIMARY KEY ("id")
 );

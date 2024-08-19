@@ -26,6 +26,7 @@ type Lobby {
   updated_at: DateTime
   latitude: Float
   longitude: Float
+  postal_code: String
 }
 
 type Recommendation {
@@ -41,6 +42,9 @@ type Recommendation {
   votes: [Vote]
   lobbys_won: [Lobby]
   generated_lobby_relation: [Lobby]
+  postal_code: String
+  latitude: Float
+  longitude: Float
 }
 
 type SkipRecommendation {
