@@ -20,8 +20,10 @@ jobs:
       env:
         DATABASE_URL: "postgresql://postgres:postgres@motive-postgres:5432/database_test?schema=postgres"
         ENV_TYPE: "prod"
+        GOOGLE_KEY: "AIzaSyC_B7WGQu2tQz2gEFSJkItVQFk87n8FOzA"
       run: |
         echo DATABASE_URL=$DATABASE_URL > src/.env
+        echo GOOGLE_KEY=$GOOGLE_KEY > src/.env
         docker-compose down
         docker rmi $(docker images -a -q)
         printf "y\n" | docker system prune
