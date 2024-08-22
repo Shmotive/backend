@@ -13,7 +13,7 @@ const resolverString = `
   type Mutation {
     createUser(uuid: String!, username: String!): User!
     deleteUser(uuid: String!): User!
-    createLobby(uuid: String!): Lobby!
+    createLobby(uuid: String!, latitude: Float!, longitude: Float!, postal_code: String): Lobby!
     joinLobby(uuid: String!, lobby_code: String!): Lobby!
     DEBUG_resetLobbies: Int
     addSuggestion(uuid: String!, lobby_code: String!, name: String!): Recommendation
