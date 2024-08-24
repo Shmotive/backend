@@ -59,7 +59,7 @@ async function searchNearby(lobby_id: number, latitude: number, longitude: numbe
                 id: place.id,
                 postal_code: place.addressComponents?.filter((comp: any) => {return comp.types.includes("postal_code")})[0]?.longText || null,
                 latitude: place.location.latitude,
-                longitude: place.location.longitude
+                longitude: place.location.longitude,
             }))
             return placesObject;
         } else {
@@ -74,31 +74,44 @@ async function searchNearby(lobby_id: number, latitude: number, longitude: numbe
 };
 
 export default async function createRecommendations(prisma: PrismaClient, lobby_id: number, latitude: number, longitude: number) {    
-    // data from google
-    let placeResults = await searchNearby(lobby_id, latitude, longitude);
-    console.log(placeResults)
+    // start transaction
+    await prisma.$transaction(async (tx: any) => {
+        // data from Google
+        let placeResults = await searchNearby(lobby_id, latitude, longitude);
+        console.log(placeResults);
 
-    // create recommendations 
-    try {
-        var res = await prisma.recommendation.createMany({
-            data: placeResults
-        });
-        console.log(res);
-        
         for (const rec of placeResults) {
-            await prisma.recommendation.update({
-                where: { id: rec.id },
-                data: {
-                    generated_lobby_relation: {
-                        connect: { id: lobby_id }
-                    }
+            try {
+                // Check if the recommendation already exists
+                const existingRec = await tx.Recommendation.findUnique({
+                    where: { id: rec.id },
+                });
+
+                if (!existingRec) {
+                    // Create the recommendation if it doesn't exist
+                    await tx.Recommendation.create({
+                        data: rec
+                    });
+                } else {
+                    console.log(`Recommendation with ID ${rec.id} already exists, connecting to lobby.`);
                 }
-            });
+
+                // Connect the recommendation to the lobby (whether newly created or already existing)
+                await tx.Recommendation.update({
+                    where: { id: rec.id },
+                    data: {
+                        generated_lobby_relation: {
+                            connect: { id: lobby_id }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error(`Error processing recommendation with ID ${rec.id} for lobby id: ${lobby_id}:`, error);
+                throw error; // Rethrow error to trigger transaction rollback
+            }
         }
 
-        console.log(`Linked recommendations to lobby with ID ${lobby_id}`);
-    } catch (error) {
-        console.error(`Error generating recommendations for lobby id: ${lobby_id}:`, error)
-    }
-    
+        console.log(`Finished processing recommendations for lobby ID ${lobby_id}`);
+    });
 };

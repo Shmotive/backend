@@ -58,6 +58,10 @@ model Recommendation {
   postal_code              String?
   latitude                 Float?
   longitude                Float?
+  coords                   Unsupported("geometry(Point, 4326)")?
+
+  // the index for that column
+  @@index([coords], name: "recommendation_idx", type: Gist)
 }
 
 // When a user joins a lobby, they can choose to either propose a custom recommendation, or skip.

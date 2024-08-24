@@ -4,6 +4,9 @@ CREATE TYPE "LobbyState" AS ENUM ('WAITING_FOR_PLAYERS', 'READY_TO_START', 'VOTI
 -- CreateEnum
 CREATE TYPE "RecommendationCategory" AS ENUM ('DINING', 'ACTIVITY', 'EVENT', 'CUSTOM');
 
+-- Enable PostGIS extension
+CREATE EXTENSION postgis;
+
 -- CreateTable
 CREATE TABLE "User" (
     "uuid" TEXT NOT NULL,
@@ -41,6 +44,7 @@ CREATE TABLE "Recommendation" (
     "postal_code" TEXT NULL,
     "latitude" DOUBLE PRECISION NULL,
     "longitude" DOUBLE PRECISION NULL,
+    -- "coords" geometry(Point, 4326),
 
     CONSTRAINT "Recommendation_pkey" PRIMARY KEY ("id")
 );
@@ -140,4 +144,7 @@ ALTER TABLE "_lobby_picks" ADD CONSTRAINT "_lobby_picks_A_fkey" FOREIGN KEY ("A"
 
 -- AddForeignKey
 ALTER TABLE "_lobby_picks" ADD CONSTRAINT "_lobby_picks_B_fkey" FOREIGN KEY ("B") REFERENCES "Recommendation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- -- CreateIndex
+-- CREATE INDEX "recommendation_idx" ON "Recommendation" USING GIST ("coords");
 

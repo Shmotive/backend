@@ -40,12 +40,13 @@ export default {
         if (!postal_code) {
             console.log(`null postal code:${postal_code}, creating recommendations...`)
             try {
-                // Trigger the process to make the nearby search requests to Google, then create the recommendations
+                let recommendations;
+                
                 await createRecommendations(prisma, lobby_id, latitude, longitude);
                 console.log("Recommendations successfully generated");
         
                 // Fetch and return the generated recommendations associated with the given lobby
-                const recommendations = await prisma.recommendation.findMany({
+                recommendations = await prisma.recommendation.findMany({
                     where: {
                         generated_lobby_relation: {
                             some: { id: lobby_id }
@@ -55,7 +56,7 @@ export default {
                 });
         
                 return recommendations;
-        
+                
             } catch (err) {
                 console.error("Error creating recommendations:", err);
                 throw err;
