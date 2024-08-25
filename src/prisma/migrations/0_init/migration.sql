@@ -4,8 +4,8 @@ CREATE TYPE "LobbyState" AS ENUM ('WAITING_FOR_PLAYERS', 'READY_TO_START', 'VOTI
 -- CreateEnum
 CREATE TYPE "RecommendationCategory" AS ENUM ('DINING', 'ACTIVITY', 'EVENT', 'CUSTOM');
 
--- Enable PostGIS extension
-CREATE EXTENSION postgis;
+-- -- Enable PostGIS extension
+-- CREATE EXTENSION postgis;
 
 -- CreateTable
 CREATE TABLE "User" (
