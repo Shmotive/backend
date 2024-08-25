@@ -45,6 +45,7 @@ type Recommendation {
   postal_code: String
   latitude: Float
   longitude: Float
+  coords: String
 }
 
 type SkipRecommendation {

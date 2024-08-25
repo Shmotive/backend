@@ -38,14 +38,15 @@ export default {
     generateRecommendations: async (prisma: PrismaClient, lobby_id: number, latitude: number, longitude: number, postal_code: string | null) => {
         // trigger the process to make the nearbysearch requests to google, then create the recs
         if (!postal_code) {
-            console.log(`null postal code:${postal_code}, creating recommendations...`)
             try {
-                // Trigger the process to make the nearby search requests to Google, then create the recommendations
-                await createRecommendations(prisma, lobby_id, latitude, longitude);
-                console.log("Recommendations successfully generated");
+                console.log(`null postal code:${postal_code}, creating recommendations...`);
+                let recommendations;
+                
+                let res: any = await createRecommendations(prisma, lobby_id, latitude, longitude);
+                console.log("create recommendations response(no lobby postal code):", res);
         
                 // Fetch and return the generated recommendations associated with the given lobby
-                const recommendations = await prisma.recommendation.findMany({
+                recommendations = await prisma.recommendation.findMany({
                     where: {
                         generated_lobby_relation: {
                             some: { id: lobby_id }
@@ -55,7 +56,7 @@ export default {
                 });
         
                 return recommendations;
-        
+                
             } catch (err) {
                 console.error("Error creating recommendations:", err);
                 throw err;
@@ -63,6 +64,8 @@ export default {
         }
         console.log("Postal code exists. Filtering recommendations based on postal code and location radius.");
     
+        // filter existing recommendations by the first 3 characters of lobby's postal code -- cuts down search field
+
         const recommendationsWithMatchingPostalCode = await prisma.recommendation.findMany({
             where: {
                 postal_code: {
@@ -70,6 +73,8 @@ export default {
                 },
             },
         });
+
+        // check to see if those recommendations satisfy being in a 1km radius of lobby location
 
         const recommendationsWithinRadius = recommendationsWithMatchingPostalCode.filter(recommendation => {
             return recommendation.latitude !== null && recommendation.longitude !== null && 
@@ -86,15 +91,17 @@ export default {
                    );
         });
     
+        // if there are enough satisfying recommendations, use those; if not, generate new ones (while making sure there are no duplicates being added)
+
         if (recommendationsWithinRadius.length >= 5) {
             console.log("Found sufficient recommendations within radius. Using these recommendations.");
             return recommendationsWithinRadius;
         } else {
-            console.log("Not enough recommendations within radius. Generating new recommendations.");
+            console.log("Not enough recommendations within radius. Generating new recommendations...");
             try {
                 // Trigger the process to make the nearby search requests to Google, then create the recommendations
-                await createRecommendations(prisma, lobby_id, latitude, longitude);
-                console.log("Recommendations successfully generated");
+                let res: any = await createRecommendations(prisma, lobby_id, latitude, longitude);
+                console.log("createRecommendations response (postal code):", res);
         
                 // Fetch and return the generated recommendations associated with the given lobby
                 const recommendations = await prisma.recommendation.findMany({
