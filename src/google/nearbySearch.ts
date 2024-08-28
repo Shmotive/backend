@@ -4,10 +4,16 @@ import { PrismaClient } from '@prisma/client';
 import { RecommendationCategory } from "@prisma/client";
 import fetch from "node-fetch";
   
-function determineCategory(types: string[]): 'DINING' | 'ACTIVITY' {
+function determineCategory(primaryType: string | null, types: string[]): 'DINING' | 'ACTIVITY' {
+    if (primaryType) {
+        if (categories.activityTypes.has(primaryType)) {
+            return 'ACTIVITY';
+        }
+        if (categories.diningTypes.has(primaryType)) return 'DINING';
+    }
     for (const type of types) {
         if (categories.activityTypes.has(type)) {
-            return 'ACTIVITY'
+            return 'ACTIVITY';
         }
     }
     return 'DINING';
@@ -38,7 +44,7 @@ async function searchNearby(lobby_id: number, latitude: number, longitude: numbe
             headers: {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.displayName,places.types,places.id,places.addressComponents,places.location"
+                "X-Goog-FieldMask": "places.displayName,places.types,places.id,places.addressComponents,places.location,places.primaryType"
             } as HeadersInit,
             body: JSON.stringify(requestBody)
         });
@@ -55,7 +61,7 @@ async function searchNearby(lobby_id: number, latitude: number, longitude: numbe
         if (places.length) {
             const placesObject = places.map((place: any) => ({
                 name: place.displayName.text,
-                category: determineCategory(place.types) === 'DINING' ? RecommendationCategory.DINING : RecommendationCategory.ACTIVITY,
+                category: determineCategory(place.primaryType, place.types) === 'DINING' ? RecommendationCategory.DINING : RecommendationCategory.ACTIVITY,
                 id: place.id,
                 postal_code: place.addressComponents?.filter((comp: any) => {return comp.types.includes("postal_code")})[0]?.longText || null,
                 latitude: place.location.latitude,
