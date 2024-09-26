@@ -51,3 +51,5 @@ If you want to try running this setup locally, follow these steps:
   The Apollo backend API is accessible at [api.whatsthemotive.app](api.whatsthemotive.app), and motive itself can be found at [whatsthemotive.app](https://whatsthemotive.app)
 
   The frontend repo can also be found in this organization's repositories on Github.
+
+  Last Edited: Sep 2024
