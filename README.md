@@ -30,8 +30,23 @@ This repository contains the backend services for the **Motive** platform. The b
    - **GitHub Actions**: Automates testing, building, and deployment to the target infrastructure.
 
 ### 6. **Docker**
-    Dockerizing allows for consistent app behaviour across platforms, and makes for pretty nice scaling.
-    The Dockerfile at top level of repository indicates our setup for this.
+   Dockerizing allows for consistent app behaviour across platforms, and makes scaling more efficient.
+   The Dockerfile at top level of the repository indicates our setup for this.
+
+## Running Locally
+
+If you want to try running this setup locally, follow these steps:
+**Prerequisites:** Have Docker installed on your machine; Make sure port 4000 on your machine is exposed; You'll need a Google API key with access to Places and Maps API enabled; npm and node.js
+- `clone` the repository to your local machine using whichever method you prefer
+- Navigate to the `/src` directory and run `npm install` in the console
+- create a `.env` file with the following variables:
+        DATABASE_URL="postgresql://postgres:postgres@motive-postgres:5432/database_test?schema=postgres"
+        ENV_TYPE="dev"
+        GOOGLE_KEY= insert your Google API key here
+- in the `/src` directory, run either `docker compose up` or `sudo docker compose up`
+       - if you're getting errors here, try a `dos2unix` command and then re-run
+- the environment should be up on your 4000 port! access it at localhost:4000/graphql on a browser
+- if you need to reset the environment for any reason, kill the process, and then run any of the `restart.sh`-s
 
   The Apollo backend API is accessible at [api.whatsthemotive.app](api.whatsthemotive.app), and motive itself can be found at [whatsthemotive.app](https://whatsthemotive.app)
 
